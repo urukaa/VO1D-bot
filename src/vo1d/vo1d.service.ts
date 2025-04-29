@@ -27,16 +27,16 @@ export class vo1dService implements OnModuleInit {
       if (message.content === '!hi') {
         await message.reply('hi uruka');
       }
-      if (message.content.startsWith('!play')) {
+      if (message.content.startsWith('!puter')) {
         const url = message.content.split(' ')[1];
         if (!url || !ytdl.validateURL(url)) {
-          message.reply('Masukkan link YouTube yang valid.');
+          message.reply('link e seng mbener mas.');
           return;
         }
 
         const voiceChannel = message.member?.voice?.channel as VoiceChannel;
         if (!voiceChannel) {
-          message.reply('Kamu harus join voice channel dulu!');
+          message.reply('Mlebet vc riyen mas!');
           return;
         }
 
@@ -62,7 +62,7 @@ export class vo1dService implements OnModuleInit {
           connection.destroy();
         });
 
-        message.reply('🎶 Memutar lagu dari YouTube!');
+        message.reply('🎶 aku nyimak!');
       }
     });
 
