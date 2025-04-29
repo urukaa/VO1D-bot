@@ -47,11 +47,19 @@ export class vo1dService implements OnModuleInit {
           adapterCreator: voiceChannel.guild.voiceAdapterCreator as any,
         });
 
-        const stream = ytdl(url, {
-          filter: 'audioonly',
-          quality: 'highestaudio',
-          highWaterMark: 1 << 25,
+        let stream;
+        try {
+        stream = ytdl(url, {
+            filter: 'audioonly',
+            quality: 'highestaudio',
+            highWaterMark: 1 << 25,
         });
+        } catch (err) {
+        console.error('💥 ytdl error:', err.message);
+        message.reply('coba ling liyane mas.');
+        return;
+        }
+
 
         const resource = createAudioResource(stream);
         const player = createAudioPlayer();
@@ -73,10 +81,6 @@ export class vo1dService implements OnModuleInit {
          subscription?.unsubscribe();
          connection.destroy();
        });
-
-        player.on(AudioPlayerStatus.Idle, () => {
-          connection.destroy();
-        });
 
         message.reply('🎶 aku nyimak!');
       }
