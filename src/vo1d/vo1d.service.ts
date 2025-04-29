@@ -2,7 +2,7 @@
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Client, GatewayIntentBits, Events, VoiceChannel } from 'discord.js';
-import ytdl from 'ytdl-core';
+import * as ytdl from 'ytdl-core';
 
 @Injectable()
 export class vo1dService implements OnModuleInit {
