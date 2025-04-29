@@ -54,6 +54,7 @@ export class vo1dService implements OnModuleInit {
             'bestaudio',
             '-o',
             '-',
+            '--cookies', './src/assets/cookies/youtube-cookies.txt',
             '--user-agent',
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36',
             url,
