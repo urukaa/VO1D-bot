@@ -1,6 +1,8 @@
 // src/discord/discord.service.ts
+import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Client, GatewayIntentBits, Events } from 'discord.js';
+import { Client, GatewayIntentBits, Events, VoiceChannel } from 'discord.js';
+import ytdl from 'ytdl-core';
 
 @Injectable()
 export class vo1dService implements OnModuleInit {
@@ -25,7 +27,46 @@ export class vo1dService implements OnModuleInit {
       if (message.content === '!hi') {
         await message.reply('hi uruka');
       }
+      if (message.content.startsWith('!play')) {
+        const url = message.content.split(' ')[1];
+        if (!url || !ytdl.validateURL(url)) {
+          message.reply('Masukkan link YouTube yang valid.');
+          return;
+        }
+
+        const voiceChannel = message.member?.voice?.channel as VoiceChannel;
+        if (!voiceChannel) {
+          message.reply('Kamu harus join voice channel dulu!');
+          return;
+        }
+
+        const connection = joinVoiceChannel({
+          channelId: voiceChannel.id,
+          guildId: voiceChannel.guild.id,
+          adapterCreator: voiceChannel.guild.voiceAdapterCreator as any,
+        });
+
+        const stream = ytdl(url, {
+          filter: 'audioonly',
+          quality: 'highestaudio',
+          highWaterMark: 1 << 25,
+        });
+
+        const resource = createAudioResource(stream);
+        const player = createAudioPlayer();
+
+        player.play(resource);
+        connection.subscribe(player);
+
+        player.on(AudioPlayerStatus.Idle, () => {
+          connection.destroy();
+        });
+
+        message.reply('🎶 Memutar lagu dari YouTube!');
+      }
     });
+
+    
 
     this.client.login(process.env.DISCORD_BOT_TOKEN);
   }
