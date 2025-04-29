@@ -56,8 +56,23 @@ export class vo1dService implements OnModuleInit {
         const resource = createAudioResource(stream);
         const player = createAudioPlayer();
 
-        player.play(resource);
-        connection.subscribe(player);
+       const subscription = connection.subscribe(player);
+
+       player.play(resource);
+
+       player.on(AudioPlayerStatus.Playing, () => {
+         console.log('🎶 Bot is playing audio!');
+       });
+
+       player.on('error', (error) => {
+         console.error('💥 AudioPlayer error:', error.message);
+       });
+
+       player.on(AudioPlayerStatus.Idle, () => {
+         console.log('⏹️ Audio ended');
+         subscription?.unsubscribe();
+         connection.destroy();
+       });
 
         player.on(AudioPlayerStatus.Idle, () => {
           connection.destroy();
