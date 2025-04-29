@@ -1,6 +1,6 @@
-// src/discord/discord.service.ts
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice';
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { spawn } from 'child_process';
 import { Client, GatewayIntentBits, Events, VoiceChannel } from 'discord.js';
 import * as ytdl from 'ytdl-core';
 
@@ -49,11 +49,14 @@ export class vo1dService implements OnModuleInit {
 
         let stream;
         try {
-        stream = ytdl(url, {
-            filter: 'audioonly',
-            quality: 'highestaudio',
-            highWaterMark: 1 << 25,
+        const ytStream = spawn('yt-dlp', ['-f', 'bestaudio', '-o', '-', url]);
+
+        ytStream.stderr.on('data', (data) => {
+        console.error(`yt-dlp error: ${data}`);
+
+        const resource = createAudioResource(ytStream.stdout);
         });
+
         } catch (err) {
         console.error('💥 ytdl error:', err.message);
         message.reply('coba ling liyane mas.');
