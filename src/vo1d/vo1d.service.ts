@@ -31,13 +31,13 @@ export class vo1dService implements OnModuleInit {
       if (message.content.startsWith('!puter')) {
         const url = message.content.split(' ')[1];
         if (!url || !ytdl.validateURL(url)) {
-          message.reply('link e seng mbener mas.');
+          await message.reply('link e seng mbener mas.');
           return;
         }
 
         const voiceChannel = message.member?.voice?.channel as VoiceChannel;
         if (!voiceChannel) {
-          message.reply('Mlebet vc riyen mas!');
+          await message.reply('Mlebet vc riyen mas!');
           return;
         }
 
@@ -47,45 +47,44 @@ export class vo1dService implements OnModuleInit {
           adapterCreator: voiceChannel.guild.voiceAdapterCreator as any,
         });
 
-        let stream;
         try {
-        const ytStream = spawn('yt-dlp', ['-f', 'bestaudio', '-o', '-', url]);
+          const ytStream = spawn('yt-dlp', ['-f', 'bestaudio', '-o', '-', url]);
 
-        ytStream.stderr.on('data', (data) => {
-        console.error(`yt-dlp error: ${data}`);
+          ytStream.stderr.on('data', (data) => {
+            console.error(`yt-dlp error: ${data}`);
+          });
 
-        const resource = createAudioResource(ytStream.stdout);
-        });
+          const resource = createAudioResource(ytStream.stdout);
+          const player = createAudioPlayer();
+          const subscription = connection.subscribe(player);
 
+          player.play(resource);
+
+          player.on(AudioPlayerStatus.Playing, () => {
+            console.log('🎶 Bot is playing audio!');
+          });
+
+          player.on('error', (error) => {
+            console.error('💥 AudioPlayer error:', error.message);
+            if (connection.state.status !== 'destroyed') {
+              subscription?.unsubscribe();
+              connection.destroy();
+            }
+          });
+
+          player.on(AudioPlayerStatus.Idle, () => {
+            console.log('⏹️ Audio ended');
+            if (connection.state.status !== 'destroyed') {
+              subscription?.unsubscribe();
+              connection.destroy();
+            }
+          });
+
+          await message.reply('🎶 aku nyimak!');
         } catch (err) {
-        console.error('💥 ytdl error:', err.message);
-        message.reply('coba ling liyane mas.');
-        return;
+          console.error('💥 yt-dlp error:', err.message);
+          await message.reply('coba ling liyane mas.');
         }
-
-
-        const resource = createAudioResource(stream);
-        const player = createAudioPlayer();
-
-       const subscription = connection.subscribe(player);
-
-       player.play(resource);
-
-       player.on(AudioPlayerStatus.Playing, () => {
-         console.log('🎶 Bot is playing audio!');
-       });
-
-       player.on('error', (error) => {
-         console.error('💥 AudioPlayer error:', error.message);
-       });
-
-       player.on(AudioPlayerStatus.Idle, () => {
-         console.log('⏹️ Audio ended');
-         subscription?.unsubscribe();
-         connection.destroy();
-       });
-
-        message.reply('🎶 aku nyimak!');
       }
     });
 
