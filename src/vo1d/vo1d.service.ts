@@ -14,6 +14,7 @@ export class vo1dService implements OnModuleInit {
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildVoiceStates,
       ],
     });
 
